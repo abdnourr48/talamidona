@@ -1148,3 +1148,220 @@ html[dir="rtl"] .footer__title { letter-spacing: 0; }
   direction: ltr;
   display: inline-block;
 }
+/* ════════════════════════════════════════════════════════════
+   17. HIGHLIGHT (search results)
+   ════════════════════════════════════════════════════════════ */
+
+mark.hl {
+  background: var(--accent-soft);
+  color: var(--accent-soft-fg);
+  padding: 1px 3px;
+  border-radius: 4px;
+  font-weight: var(--fw-semibold);
+}
+
+/* ════════════════════════════════════════════════════════════
+   18. FAVORITES
+   ════════════════════════════════════════════════════════════ */
+
+.resource__fav {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  border-radius: var(--radius-sm);
+  color: var(--fg-subtle);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: color var(--dur) var(--ease), background-color var(--dur) var(--ease), transform var(--dur) var(--ease);
+  flex-shrink: 0;
+}
+.resource__fav:hover { color: var(--accent); background: var(--accent-soft); }
+.resource__fav.is-on { color: var(--accent); }
+.resource__fav.is-on:hover { color: var(--accent-hover); }
+.resource__fav:active { transform: scale(0.9); }
+
+.navbar__fav {
+  position: relative;
+}
+.navbar__fav-badge {
+  position: absolute;
+  inset-block-start: -2px;
+  inset-inline-end: -2px;
+  min-width: 16px;
+  height: 16px;
+  padding-inline: 4px;
+  background: var(--accent);
+  color: var(--fg-on-accent);
+  border-radius: var(--radius-full);
+  font-size: 10px;
+  font-weight: var(--fw-bold);
+  line-height: 16px;
+  text-align: center;
+}
+
+.saved__toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  background: var(--bg-muted);
+  border-radius: var(--radius-md);
+  margin-block-end: var(--space-4);
+}
+.saved__count { font-size: var(--fs-sm); color: var(--fg-muted); font-weight: var(--fw-medium); }
+
+/* ════════════════════════════════════════════════════════════
+   19. AUTOCOMPLETE
+   ════════════════════════════════════════════════════════════ */
+
+.autocomplete {
+  position: absolute;
+  inset-block-start: calc(100% + var(--space-2));
+  inset-inline: 0;
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xl);
+  padding: var(--space-1);
+  z-index: var(--z-dropdown);
+  max-height: 22rem;
+  overflow-y: auto;
+}
+.autocomplete__item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-sm);
+  color: var(--fg-default);
+  text-decoration: none;
+  transition: background-color var(--dur-fast) var(--ease);
+}
+.autocomplete__item:hover,
+.autocomplete__item.is-active { background: var(--brand-soft); }
+.autocomplete__title {
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-semibold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.autocomplete__meta {
+  font-size: var(--fs-xs);
+  color: var(--fg-muted);
+}
+
+/* Navbar's autocomplete is narrower */
+.navbar__search .autocomplete { min-width: 300px; }
+
+/* ════════════════════════════════════════════════════════════
+   20. SIMILAR RESULTS
+   ════════════════════════════════════════════════════════════ */
+
+.similar {
+  margin-block-start: var(--space-12);
+  padding-block-start: var(--space-8);
+  border-block-start: 1px solid var(--divider);
+}
+.similar__title {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  margin-block-end: var(--space-5);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.similar__title::before {
+  content: "";
+  width: 4px;
+  height: 1.2em;
+  background: var(--accent);
+  border-radius: 2px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   21. SEMESTER FILTER
+   ════════════════════════════════════════════════════════════ */
+
+.filters--inline {
+  margin-block-end: var(--space-5);
+  margin-block-start: 0;
+}
+
+/* ════════════════════════════════════════════════════════════
+   22. READING MODE
+   ════════════════════════════════════════════════════════════ */
+
+[data-reading="on"] .navbar,
+[data-reading="on"] .footer,
+[data-reading="on"] .breadcrumb,
+[data-reading="on"] .page__head,
+[data-reading="on"] .similar,
+[data-reading="on"] .filters--inline { display: none !important; }
+
+[data-reading="on"] .page { padding-block: var(--space-6); }
+[data-reading="on"] .tabs--bar { margin-block-end: var(--space-4); }
+[data-reading="on"] .container { max-width: 780px; }
+
+.reading-exit {
+  position: fixed;
+  inset-block-end: var(--space-6);
+  inset-inline-end: var(--space-6);
+  width: 3rem;
+  height: 3rem;
+  border-radius: var(--radius-full);
+  background: var(--brand);
+  color: var(--fg-on-brand);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-xl);
+  cursor: pointer;
+  z-index: var(--z-toast);
+  transition: transform var(--dur) var(--ease), background-color var(--dur) var(--ease);
+}
+.reading-exit:hover { transform: scale(1.08); background: var(--brand-hover); }
+.reading-exit .icon { width: 1.25rem; height: 1.25rem; }
+
+/* Reading mode toggle button */
+.btn--reading { display: inline-flex; align-items: center; gap: var(--space-2); }
+
+/* ════════════════════════════════════════════════════════════
+   23. PRINT (for saved page)
+   ════════════════════════════════════════════════════════════ */
+
+@media print {
+  .navbar, .footer, .breadcrumb, .no-print, .reading-exit,
+  .resource__fav, .hero, .section__head, .feature-grid { display: none !important; }
+
+  body { background: #fff; color: #000; font-size: 12pt; }
+  .container { max-width: 100%; padding: 0; }
+  .page { padding: 0; }
+  .resource {
+    border: 1px solid #ccc;
+    box-shadow: none;
+    transform: none !important;
+    page-break-inside: avoid;
+    margin-block-end: 8px;
+    background: #fff;
+  }
+  .resource__icon, .resource__pdf { display: none; }
+  .resource__title { color: #000 !important; }
+  .badge { border: 1px solid #999; background: transparent !important; color: #000 !important; }
+  a { color: #000; text-decoration: none; }
+
+  /* Add a print header */
+  .saved::before {
+    content: "مدرستي المباشرة — المفضلة";
+    display: block;
+    font-size: 16pt;
+    font-weight: bold;
+    margin-block-end: 12pt;
+    padding-block-end: 8pt;
+    border-block-end: 2px solid #000;
+  }
+}

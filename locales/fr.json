@@ -87,5 +87,21 @@
   "footer.madeIn": "Fièrement conçu au Maroc",
   "notFound.title": "Page introuvable",
   "notFound.desc": "Désolé, ce lien n'est pas disponible.",
+   "nav.saved": "Favoris",
+"actions.favorite": "Ajouter aux favoris",
+"actions.unfavorite": "Retirer des favoris",
+"actions.print": "Imprimer",
+"subject.semester": "Semestre",
+"subject.semesterAll": "Tous les semestres",
+"subject.semester1": "1er Semestre",
+"subject.semester2": "2ème Semestre",
+"subject.similar": "Vous aimerez aussi",
+"saved.title": "Favoris",
+"saved.subtitle": "Les ressources que vous avez sauvegardées.",
+"saved.empty": "Aucun favori",
+"saved.emptyHint": "Cliquez sur l'étoile ⭐ à côté d'une ressource pour l'ajouter ici.",
+"saved.count": "{n} élément(s) sauvegardé(s)",
+"saved.print": "Imprimer / PDF"
+
   "notFound.cta": "Retour à l'accueil"
 }

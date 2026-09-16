@@ -87,5 +87,20 @@
   "footer.madeIn": "Proudly made in Morocco",
   "notFound.title": "Page not found",
   "notFound.desc": "Sorry, this link is not available.",
+   "nav.saved": "Saved",
+"actions.favorite": "Add to favorites",
+"actions.unfavorite": "Remove from favorites",
+"actions.print": "Print",
+"subject.semester": "Semester",
+"subject.semesterAll": "All semesters",
+"subject.semester1": "Semester 1",
+"subject.semester2": "Semester 2",
+"subject.similar": "You may also like",
+"saved.title": "Saved",
+"saved.subtitle": "Resources you've saved for later.",
+"saved.empty": "No saved items",
+"saved.emptyHint": "Click the star ⭐ next to any resource to save it here.",
+"saved.count": "{n} saved item(s)",
+"saved.print": "Print / Save as PDF"
   "notFound.cta": "Back to home"
 }

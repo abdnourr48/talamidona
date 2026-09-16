@@ -64,14 +64,15 @@
   };
 
   /* ── R() now accepts an optional 11th arg: fileUrl ── */
-  var R = function (id, title, level, grade, stream, subject, type, year, keywords, examType, fileUrl) {
-    return {
-      id: id, title: title, level: level, grade: grade,
-      stream: stream || null, subject: subject, type: type,
-      year: year || null, examType: examType || null,
-      keywords: keywords || [], fileUrl: fileUrl || null
-    };
+var R = function (id, title, level, grade, stream, subject, type, year, keywords, examType, fileUrl, semester) {
+  return {
+    id: id, title: title, level: level, grade: grade,
+    stream: stream || null, subject: subject, type: type,
+    year: year || null, examType: examType || null,
+    keywords: keywords || [], fileUrl: fileUrl || null,
+    semester: semester || null
   };
+};
 
   var RESOURCES = [
     R('r1',  'الاشتقاق وتطبيقاته',            'lycee','2bac','2bac-pc','math','lesson',null,['الاشتقاق','المشتقة','derivation','derivative','derivee']),
@@ -158,6 +159,7 @@
         if (filters.stream && r.stream !== filters.stream) return false;
         if (filters.subject && r.subject !== filters.subject) return false;
         if (filters.type && r.type !== filters.type) return false;
+        if (filters.semester && r.semester !== filters.semester) return false;
         if (filters.year && String(r.year) !== String(filters.year)) return false;
         return true;
       });

@@ -40,28 +40,26 @@
       .replace(/\n/g, '\\n');
   }
 
-  function toCodeLine(r) {
-    var kw = (r.keywords || []).map(function (k) { return '"' + escapeJsString(k) + '"'; });
-    var parts = [
-      '"' + escapeJsString(r.id) + '"',
-      '"' + escapeJsString(r.title) + '"',
-      '"' + escapeJsString(r.level) + '"',
-      '"' + escapeJsString(r.grade) + '"',
-      r.stream ? '"' + escapeJsString(r.stream) + '"' : 'null',
-      '"' + escapeJsString(r.subject) + '"',
-      '"' + escapeJsString(r.type) + '"',
-      r.year != null ? String(r.year) : 'null',
-      '[' + kw.join(', ') + ']'
-    ];
-    // Append optional trailing args — must preserve positions
-    if (r.examType || r.fileUrl) {
-      parts.push(r.examType ? '"' + escapeJsString(r.examType) + '"' : 'null');
-    }
-    if (r.fileUrl) {
-      parts.push('"' + escapeJsString(r.fileUrl) + '"');
-    }
-    return '  R(' + parts.join(', ') + '),';
-  }
+function toCodeLine(r) {
+  var kw = (r.keywords || []).map(function (k) { return '"' + escapeJsString(k) + '"'; });
+  var parts = [
+    '"' + escapeJsString(r.id) + '"',
+    '"' + escapeJsString(r.title) + '"',
+    '"' + escapeJsString(r.level) + '"',
+    '"' + escapeJsString(r.grade) + '"',
+    r.stream ? '"' + escapeJsString(r.stream) + '"' : 'null',
+    '"' + escapeJsString(r.subject) + '"',
+    '"' + escapeJsString(r.type) + '"',
+    r.year != null ? String(r.year) : 'null',
+    '[' + kw.join(', ') + ']',
+    r.examType ? '"' + escapeJsString(r.examType) + '"' : 'null',
+    r.fileUrl ? '"' + escapeJsString(r.fileUrl) + '"' : 'null',
+    r.semester ? String(r.semester) : 'null'
+  ];
+  // Trim trailing nulls to keep the code short
+  while (parts.length > 9 && parts[parts.length - 1] === 'null') parts.pop();
+  return '  R(' + parts.join(', ') + '),';
+}
 
   /* ── Population helpers ───────────────────── */
   function currentLang() { return window.MD.state.getLang(); }
@@ -141,6 +139,10 @@
       fileUrl: form.__pdfFileUrl || null
     };
   }
+  semester: type === 'exam' ? null : (function(){
+  var v = fd.get('semester');
+  return v && v !== '' ? Number(v) : null;
+})()
 
   function validateDraft(r, drafts, opts) {
     opts = opts || {};
@@ -390,7 +392,14 @@
       +           '<label class="field__label" for="dev-examtype">نوع الامتحان</label>'
       +           '<select class="input" id="dev-examtype" name="examType">' + examTypeOpts + '</select>'
       +         '</div>'
-
+       + '<div class="field" id="dev-semester-field" hidden>'
++   '<label class="field__label" for="dev-semester">الفصل الدراسي</label>'
++   '<select class="input" id="dev-semester" name="semester">'
++     '<option value="">—</option>'
++     '<option value="1">الدورة الأولى</option>'
++     '<option value="2">الدورة الثانية</option>'
++   '</select>'
++ '</div>'
       +         '<div class="field">'
       +           '<label class="field__label" for="dev-keywords">كلمات مفتاحية (مفصولة بفواصل)</label>'
       +           '<input class="input" type="text" id="dev-keywords" name="keywords" placeholder="مثال: الاشتقاق, derivation">'
@@ -504,7 +513,7 @@
       +       '<pre id="dev-code" class="dev-code"></pre>'
       +       '<p class="field__hint">انسخ هذه الأسطر داخل مصفوفة <code>RESOURCES</code> في <code>data.js</code>، ثم أعد النشر.</p>'
       +     '</div>'
-
+      + '<button class="btn btn--primary btn--sm" id="dev-download-data">' + C.icon('download', 'icon--sm') + ' تنزيل data.js كامل</button>'
       +   '</div>'
       + '</section>'
       + '</main>'
@@ -519,24 +528,62 @@
   }
 
   /* ── Wiring ───────────────────────────────── */
-  function wireDevForm() {
-    var form = document.getElementById('dev-form');
-    if (!form) return;
+document.getElementById('dev-download-data').addEventListener('click', function () {
+  downloadFullDataJs(drafts);
+});
 
-    var drafts = loadDrafts();
-    var editingIndex = null;
-    var previewLang = window.MD.state.getLang();
+function downloadFullDataJs(drafts) {
+  var all = (window.MD.data.resources || []).concat(drafts);
+  var lines = all.map(toCodeLine).join('\n');
+  var D = window.MD.data;
+  var header = '/* data.js — generated ' + new Date().toISOString().slice(0, 10)
+    + ' — ' + all.length + ' resources */\n';
+  var body = '(function () {\n  \'use strict\';\n\n'
+    + '  var SUBJECTS = ' + JSON.stringify(D.subjects, null, 2) + ';\n\n'
+    + '  var GRADES = ' + JSON.stringify(D.grades, null, 2) + ';\n\n'
+    + '  var STREAMS = ' + JSON.stringify(D.streams, null, 2) + ';\n\n'
+    + '  var R = function (id, title, level, grade, stream, subject, type, year, keywords, examType, fileUrl, semester) {\n'
+    + '    return { id: id, title: title, level: level, grade: grade, stream: stream || null,\n'
+    + '             subject: subject, type: type, year: year || null, examType: examType || null,\n'
+    + '             keywords: keywords || [], fileUrl: fileUrl || null, semester: semester || null };\n'
+    + '  };\n\n'
+    + '  var RESOURCES = [\n' + lines + '\n  ];\n\n'
+    + '  window.MD = window.MD || {};\n'
+    + '  window.MD.data = {\n'
+    + '    subjects: SUBJECTS, grades: GRADES, streams: STREAMS, resources: RESOURCES,\n'
+    + '    subjectName: function (id, l) { var s = SUBJECTS[id]; return s ? (s[l] || s.ar) : id; },\n'
+    + '    gradeName: function (id, l) { var g = GRADES[id]; return g ? (g[l] || g.ar) : id; },\n'
+    + '    streamName: function (id, l) { var s = STREAMS[id]; return s ? (s[l] || s.ar) : id; },\n'
+    + '    resourcesFor: function (f) {\n'
+    + '      return RESOURCES.filter(function (r) {\n'
+    + '        if (f.level && r.level !== f.level) return false;\n'
+    + '        if (f.grade && r.grade !== f.grade) return false;\n'
+    + '        if (f.stream && r.stream !== f.stream) return false;\n'
+    + '        if (f.subject && r.subject !== f.subject) return false;\n'
+    + '        if (f.type && r.type !== f.type) return false;\n'
+    + '        if (f.semester && String(r.semester) !== String(f.semester)) return false;\n'
+    + '        if (f.year && String(r.year) !== String(f.year)) return false;\n'
+    + '        return true;\n'
+    + '      });\n'
+    + '    },\n'
+    + '    years: function () {\n'
+    + '      var s = {};\n'
+    + '      RESOURCES.forEach(function (r) { if (r.year) s[r.year] = 1; });\n'
+    + '      return Object.keys(s).map(Number).sort(function (a, b) { return b - a; });\n'
+    + '    }\n'
+    + '  };\n'
+    + '})();\n';
 
-    var levelSel = document.getElementById('dev-level');
-    var gradeSel = document.getElementById('dev-grade');
-    var streamSel = document.getElementById('dev-stream');
-    var typeSel = document.getElementById('dev-type');
-    var examField = document.getElementById('dev-examtype-field');
-    var idInput = document.getElementById('dev-id');
-    var errorBox = document.getElementById('dev-error');
-    var submitLabel = document.getElementById('dev-submit-label');
-    var cancelBtn = document.getElementById('dev-cancel-edit');
-
+  var blob = new Blob([header + body], { type: 'application/javascript' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'data.js';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+}
     /* PDF state */
     var pdfFile = null;           // File object (in-memory)
     var pdfBlobUrl = null;        // for cleanup
@@ -854,6 +901,7 @@
       var added = 0;
       parsed.forEach(function (item) {
         if (!item || typeof item !== 'object') return;
+        semester: item.semester != null ? Number(item.semester) : null,
         var r = {
           id: String(item.id || '').trim() || nextId(drafts),
           title: String(item.title || '').trim(),

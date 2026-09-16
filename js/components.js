@@ -1,4 +1,4 @@
-/* components.js — navbar, footer, breadcrumb, cards, icons */
+/* components.js — navbar, footer, breadcrumb, cards, icons, resourceRow */
 (function () {
   'use strict';
   var t = window.MD.i18n.t;
@@ -28,15 +28,27 @@
     check:    '<path d="M20 6 9 17l-5-5"/>',
     north:    '<path d="M12 2 4 22l8-6 8 6z"/>',
     download: '<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>',
-    eye:      '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>'
+    eye:      '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+    printer:  '<path d="M6 9V2h12v7"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/>'
+  };
+
+  var FILLED_ICONS = {
+    star: '<path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>'
+  };
+  var OUTLINE_ICONS = {
+    star: '<path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>'
   };
 
   function icon(name, cls) {
     var body = ICONS[name] || '';
     return '<svg class="icon ' + (cls || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + body + '</svg>';
   }
+  function starIcon(filled, cls) {
+    var body = (filled ? FILLED_ICONS : OUTLINE_ICONS).star;
+    return '<svg class="icon ' + (cls || '') + '" viewBox="0 0 24 24" '
+      + (filled ? 'fill="currentColor"' : '') + ' aria-hidden="true">' + body + '</svg>';
+  }
 
-  /* Unique IDs per logo so navbar + footer don't collide */
   var logoUid = 0;
   function logoMark(size) {
     var s = size || 32;
@@ -55,6 +67,7 @@
   function navbar(active) {
     var lang = window.MD.state.getLang();
     var theme = window.MD.state.getTheme();
+    var favCount = window.MD.state.getFavorites().length;
     active = active || '';
     var isDark = theme === 'dark';
 
@@ -80,11 +93,15 @@
       +       link('#/exams', 'nav.exams', 'exams')
       +     '</nav>'
       +     '<div class="navbar__actions">'
-      +       '<form class="navbar__search" data-role="navbar-search" role="search">'
+      +       '<form class="navbar__search" data-role="navbar-search" role="search" autocomplete="off">'
       +         '<span class="navbar__search-icon">' + icon('search', 'icon--sm') + '</span>'
       +         '<input class="navbar__search-input" type="search" name="q" placeholder="' + t('hero.searchPlaceholder') + '" autocomplete="off" />'
       +       '</form>'
       +       '<div class="navbar__tools">'
+      +         '<a class="btn btn--ghost btn--icon btn--sm navbar__fav" href="#/saved" aria-label="' + t('nav.saved') + '">'
+      +           starIcon(favCount > 0, 'icon--sm')
+      +           (favCount > 0 ? '<span class="navbar__fav-badge">' + favCount + '</span>' : '')
+      +         '</a>'
       +         '<div class="lang" data-role="lang">'
       +           '<button class="btn btn--ghost btn--icon btn--sm" data-action="toggle-lang" aria-haspopup="true" aria-expanded="false" aria-label="' + t('lang.label') + '">'
       +             '<span class="lang__code">' + lang.toUpperCase() + '</span>'
@@ -95,7 +112,7 @@
       +             '<button class="lang__item' + (lang === 'en' ? ' is-active' : '') + '" data-action="set-lang" data-lang="en" role="menuitem">English</button>'
       +           '</div>'
       +         '</div>'
-      +         '<button class="btn btn--ghost btn--icon btn--sm" data-action="toggle-theme" aria-label="' + t('theme.toggle') + '" title="' + t('theme.toggle') + '" aria-pressed="' + isDark + '">'
+      +         '<button class="btn btn--ghost btn--icon btn--sm" data-action="toggle-theme" aria-label="' + t('theme.toggle') + '" aria-pressed="' + isDark + '">'
       +           (isDark ? icon('sun', 'icon--sm') : icon('moon', 'icon--sm'))
       +         '</button>'
       +         '<button class="btn btn--ghost btn--icon btn--sm navbar__burger" data-action="toggle-menu" aria-label="' + t('nav.openMenu') + '" aria-expanded="false">'
@@ -110,8 +127,9 @@
       +       '<a href="#/college" class="mobile-menu__link">' + t('nav.college') + '</a>'
       +       '<a href="#/lycee" class="mobile-menu__link">' + t('nav.lycee') + '</a>'
       +       '<a href="#/exams" class="mobile-menu__link">' + t('nav.exams') + '</a>'
+      +       '<a href="#/saved" class="mobile-menu__link">' + t('nav.saved') + '</a>'
       +     '</nav>'
-      +     '<form class="mobile-menu__search" data-role="navbar-search" role="search">'
+      +     '<form class="mobile-menu__search" data-role="navbar-search" role="search" autocomplete="off">'
       +       '<div class="search">'
       +         '<span class="search__icon">' + icon('search') + '</span>'
       +         '<input class="input" type="search" name="q" placeholder="' + t('hero.searchPlaceholder') + '" autocomplete="off" />'
@@ -143,6 +161,7 @@
       +         '<li><a href="#/college">' + t('nav.college') + '</a></li>'
       +         '<li><a href="#/lycee">' + t('nav.lycee') + '</a></li>'
       +         '<li><a href="#/exams">' + t('nav.exams') + '</a></li>'
+      +         '<li><a href="#/saved">' + t('nav.saved') + '</a></li>'
       +       '</ul>'
       +     '</div>'
       +     '<div class="footer__col">'
@@ -190,14 +209,22 @@
     return '<span class="badge ' + cls + '">' + t('type.' + type) + '</span>';
   }
 
-  /* ── resourceRow — becomes a link when fileUrl exists ── */
-  function resourceRow(r) {
+  /* ── resourceRow ─────────────────────────────────── */
+  function resourceRow(r, opts) {
+    opts = opts || {};
     var lang = window.MD.state.getLang();
+    var isFav = window.MD.state.isFavorite(r.id);
+    var highlightQ = opts.highlight || '';
+
     var meta = [
       data.subjectName(r.subject, lang),
       r.stream ? data.streamName(r.stream, lang) : null,
       r.year ? r.year : null
     ].filter(Boolean).join(' · ');
+
+    var titleHtml = highlightQ
+      ? window.MD.search.highlight(r.title, highlightQ)
+      : window.MD.search.escapeHtml(r.title);
 
     var hasPdf = !!r.fileUrl;
     var tag = hasPdf ? 'a' : 'article';
@@ -210,19 +237,26 @@
       + '<' + tag + ' class="' + cls + '"' + attrs + ' tabindex="0">'
       +   '<div class="resource__icon">' + subjectIcon(r.subject) + '</div>'
       +   '<div class="resource__body">'
-      +     '<h3 class="resource__title">' + r.title + '</h3>'
+      +     '<h3 class="resource__title">' + titleHtml + '</h3>'
       +     '<p class="resource__meta">' + meta + '</p>'
       +   '</div>'
       +   '<div class="resource__right">'
       +     typeBadge(r.type)
       +     (r.examType ? '<span class="badge badge--outline">' + t('examType.' + r.examType) + '</span>' : '')
       +     (hasPdf ? '<span class="badge badge--brand resource__pdf">' + icon('file', 'icon--sm') + ' PDF</span>' : '')
+      +     '<button type="button" class="resource__fav' + (isFav ? ' is-on' : '') + '" '
+      +       'data-action="toggle-fav" data-id="' + r.id + '" '
+      +       'aria-label="' + (isFav ? t('actions.unfavorite') : t('actions.favorite')) + '" '
+      +       'title="' + (isFav ? t('actions.unfavorite') : t('actions.favorite')) + '">'
+      +       starIcon(isFav, 'icon--sm')
+      +     '</button>'
       +   '</div>'
       + '</' + tag + '>';
   }
 
   window.MD.components = {
     icon: icon,
+    starIcon: starIcon,
     iconBody: function (name) { return ICONS[name] || ''; },
     logoMark: logoMark,
     navbar: navbar,

@@ -4,20 +4,38 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="color-scheme" content="light dark">
-  <meta name="description" content="منصة تعليمية مغربية توفر دروس، تمارين، فروض وامتحانات جهوية ووطنية.">
+  <meta name="description" id="meta-description" content="منصة تعليمية مغربية توفر دروس، تمارين، فروض وامتحانات جهوية ووطنية.">
+  <meta name="theme-color" content="#1b32a1">
   <title>مدرستي المباشرة — منصة التعليم المغربي</title>
 
-  <!-- ── Pre-paint theme/lang (no flash) ── -->
+  <!-- ── Open Graph (dynamic) ── -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="مدرستي المباشرة">
+  <meta property="og:title" id="og-title" content="مدرستي المباشرة">
+  <meta property="og:description" id="og-description" content="منصة تعليمية مغربية مجانية.">
+  <meta property="og:url" id="og-url" content="">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" id="tw-title" content="مدرستي المباشرة">
+  <meta name="twitter:description" id="tw-description" content="منصة تعليمية مغربية مجانية.">
+
+  <!-- ── Icons ── -->
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="apple-touch-icon" href="favicon.svg">
+  <link rel="mask-icon" href="favicon.svg" color="#1b32a1">
+
+  <!-- ── Pre-paint theme/lang ── -->
   <script>
   (function(){
     try {
       var l = localStorage.getItem('md.lang') || 'ar';
       var t = localStorage.getItem('md.theme')
         || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+      var r = localStorage.getItem('md.reading') === 'on';
       var d = document.documentElement;
       d.setAttribute('lang', l);
       d.setAttribute('dir', l === 'ar' ? 'rtl' : 'ltr');
       d.setAttribute('data-theme', t);
+      if (r) d.setAttribute('data-reading', 'on');
       d.style.colorScheme = t;
     } catch(e){}
   })();
@@ -38,7 +56,14 @@
   <a class="skip-link" href="#view">تخطى إلى المحتوى الرئيسي</a>
   <div id="app"></div>
 
-  <!-- ── Diagnostic overlay (only on localhost or ?debug=1) ── -->
+  <!-- ── Reading-mode exit button (visible only in reading mode) ── -->
+  <button class="reading-exit no-print" id="reading-exit" hidden aria-label="إنهاء وضع القراءة">
+    <svg viewBox="0 0 24 24" class="icon" aria-hidden="true">
+      <path d="M18 6 6 18M6 6l12 12"/>
+    </svg>
+  </button>
+
+  <!-- ── Diagnostic overlay ── -->
   <div id="md-error" style="display:none;position:fixed;inset:0;z-index:99999;
        background:#0e1836;color:#fff;padding:2rem;font-family:monospace;
        overflow:auto;direction:ltr;text-align:left">
@@ -51,8 +76,8 @@
         || /[?&]debug=1\b/.test(location.search);
       var shown = false;
       function show(msg) {
-        if (!isDebug) return;
-        if (shown) return; shown = true;
+        if (!isDebug || shown) return;
+        shown = true;
         var box = document.getElementById('md-error');
         var body = document.getElementById('md-error-body');
         if (!box || !body) return;
@@ -60,8 +85,7 @@
         box.style.display = 'block';
       }
       window.addEventListener('error', function (e) {
-        show('❌ ' + (e.message || 'Unknown error')
-          + '\n   at ' + (e.filename || '?') + ':' + (e.lineno || '?')
+        show('❌ ' + (e.message || 'Unknown error') + '\n   at ' + (e.filename || '?') + ':' + (e.lineno || '?')
           + (e.error && e.error.stack ? '\n\n' + e.error.stack : ''));
       });
       window.addEventListener('unhandledrejection', function (e) {
@@ -72,22 +96,16 @@
       setTimeout(function () {
         var app = document.getElementById('app');
         if (!app || app.innerHTML.trim() === '') {
-          show('❌ The app rendered nothing.\n'
-            + '   window.MD = ' + (window.MD ? 'exists' : 'MISSING') + '\n'
-            + '   window.MD.state    = ' + (window.MD && window.MD.state ? 'ok' : 'MISSING') + '\n'
-            + '   window.MD.i18n     = ' + (window.MD && window.MD.i18n ? 'ok' : 'MISSING') + '\n'
-            + '   window.MD.data     = ' + (window.MD && window.MD.data ? 'ok' : 'MISSING') + '\n'
-            + '   window.MD.search   = ' + (window.MD && window.MD.search ? 'ok' : 'MISSING') + '\n'
-            + '   window.MD.router   = ' + (window.MD && window.MD.router ? 'ok' : 'MISSING') + '\n'
-            + '   window.MD.components = ' + (window.MD && window.MD.components ? 'ok' : 'MISSING') + '\n'
-            + '   window.MD.pages    = ' + (window.MD && window.MD.pages ? 'ok' : 'MISSING') + '\n'
-            + '   location.hash = ' + location.hash);
+          show('❌ App rendered nothing.\nMD.state=' + !!(window.MD && window.MD.state)
+            + ' i18n=' + !!(window.MD && window.MD.i18n)
+            + ' data=' + !!(window.MD && window.MD.data)
+            + ' router=' + !!(window.MD && window.MD.router)
+            + ' pages=' + !!(window.MD && window.MD.pages));
         }
       }, 2000);
     })();
   </script>
 
-  <!-- ── PDF.js (only used in /dev) ── -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
   <script>
     if (window.pdfjsLib) {
@@ -96,7 +114,6 @@
     }
   </script>
 
-  <!-- ── App scripts, in strict order ── -->
   <script src="js/state.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/data.js"></script>

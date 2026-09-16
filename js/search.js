@@ -1,4 +1,4 @@
-/* search.js — normalization, aliases, index, scoring */
+/* search.js — normalization, aliases, index, scoring, highlight */
 (function () {
   'use strict';
 
@@ -16,6 +16,28 @@
     s = s.replace(/[^\p{L}\p{N}\s]/gu, ' ');
     s = s.replace(/\s+/g, ' ').trim();
     return s;
+  }
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c];
+    });
+  }
+
+  /* Highlight query terms inside `text` (original case preserved) */
+  function highlight(text, query) {
+    var safe = escapeHtml(text);
+    if (!query) return safe;
+    var words = String(query).trim().split(/\s+/)
+      .map(function (w) { return w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); })
+      .filter(function (w) { return w.length >= 2; });
+    words.forEach(function (w) {
+      try {
+        var re = new RegExp('(' + w + ')', 'gi');
+        safe = safe.replace(re, '<mark class="hl">$1</mark>');
+      } catch (e) {}
+    });
+    return safe;
   }
 
   var ALIASES = {
@@ -68,7 +90,8 @@
     var data = window.MD.data;
     if (!data) return;
     index = data.resources.map(function (r) {
-      var text = [r.title, r.subject, r.level, r.grade, r.stream, r.type, r.examType || '', r.year || '', (r.keywords || []).join(' ')].join(' ');
+      var text = [r.title, r.subject, r.level, r.grade, r.stream, r.type,
+        r.examType || '', r.year || '', (r.keywords || []).join(' ')].join(' ');
       return { r: r, text: normalize(text), title: normalize(r.title) };
     });
   }
@@ -77,14 +100,12 @@
     if (!terms.length) return 0;
     var total = 0;
     var rawNorm = normalize(rawQuery);
-
     if (rawNorm && doc.title.indexOf(rawNorm) !== -1) total += 25;
     terms.forEach(function (term) {
       if (!term) return;
       if (doc.title.indexOf(term) !== -1) total += 10;
       if (doc.text.indexOf(term) !== -1) total += 3;
     });
-
     var r = doc.r;
     terms.forEach(function (t) {
       if (!t) return;
@@ -93,7 +114,6 @@
       if (normalize(r.type) === t) total += 3;
       if (r.year && String(r.year) === t) total += 5;
     });
-
     return total;
   }
 
@@ -140,5 +160,9 @@
   }
 
   window.MD = window.MD || {};
-  window.MD.search = { search: search, suggest: suggest, normalize: normalize, build: build };
+  window.MD.search = {
+    search: search, suggest: suggest,
+    normalize: normalize, build: build,
+    highlight: highlight, escapeHtml: escapeHtml
+  };
 })();

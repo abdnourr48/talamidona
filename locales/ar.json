@@ -87,5 +87,20 @@
   "footer.madeIn": "صُنع بكل فخر في المغرب",
   "notFound.title": "الصفحة غير موجودة",
   "notFound.desc": "عذراً، الرابط الذي طلبته غير متاح.",
-  "notFound.cta": "العودة إلى الرئيسية"
+  "notFound.cta": "العودة إلى الرئيسية" 
+  "nav.saved": "المفضلة",
+  "actions.favorite": "أضف إلى المفضلة",
+  "actions.unfavorite": "إزالة من المفضلة",
+  "actions.print": "طباعة",
+  "subject.semester": "الفصل",
+"subject.semesterAll": "كل الفصول",
+"subject.semester1": "الدورة الأولى",
+"subject.semester2": "الدورة الثانية",
+"subject.similar": "قد يهمك أيضاً",
+"saved.title": "المفضلة",
+"saved.subtitle": "الموارد التي حفظتها للرجوع إليها لاحقاً.",
+"saved.empty": "لا توجد عناصر محفوظة",
+"saved.emptyHint": "اضغط على النجمة ⭐ بجانب أي مورد لإضافته هنا.",
+"saved.count": "{n} عنصر محفوظ",
+"saved.print": "طباعة / حفظ PDF"
 }
