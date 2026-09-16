@@ -2,7 +2,6 @@
 (function () {
   'use strict';
 
-  /* ── Subjects ─────────────────────────────────── */
   var SUBJECTS = {
     math:       { ar: 'الرياضيات',          fr: 'Mathématiques',      en: 'Mathematics',        icon: 'calculator' },
     physique:   { ar: 'الفيزياء والكيمياء',  fr: 'Physique-Chimie',    en: 'Physics & Chemistry', icon: 'atom' },
@@ -17,7 +16,6 @@
     si:         { ar: 'العلوم الهندسية',    fr: 'Sciences de l\'ingénieur', en: 'Engineering',  icon: 'cog' }
   };
 
-  /* ── Grades ───────────────────────────────────── */
   var GRADES = {
     '1ap': { level: 'college', ar: 'الأولى إعدادي', fr: '1ère Année Collège', en: '1st Year Middle School',
              subjects: ['math','physique','svt','arabe','francais','anglais','histoire','islamique'] },
@@ -34,7 +32,6 @@
               streams: ['2bac-sm','2bac-pc','2bac-svt','2bac-seco','2bac-lettres'] }
   };
 
-  /* ── Streams ──────────────────────────────────── */
   var STREAMS = {
     'tc-sci':     { ar: 'الجذع العلمي',           fr: 'Tronc Scientifique',  en: 'Scientific Core',
                     subjects: ['math','physique','svt','francais','anglais','arabe','islamique'] },
@@ -66,11 +63,14 @@
                     subjects: ['arabe','francais','anglais','histoire','islamique','philo'] }
   };
 
-  /* ── Resources (indexed by search engine) ─────── */
-  var R = function (id, title, level, grade, stream, subject, type, year, keywords, examType) {
-    return { id: id, title: title, level: level, grade: grade, stream: stream || null,
-             subject: subject, type: type, year: year || null, examType: examType || null,
-             keywords: keywords || [] };
+  /* ── R() now accepts an optional 11th arg: fileUrl ── */
+  var R = function (id, title, level, grade, stream, subject, type, year, keywords, examType, fileUrl) {
+    return {
+      id: id, title: title, level: level, grade: grade,
+      stream: stream || null, subject: subject, type: type,
+      year: year || null, examType: examType || null,
+      keywords: keywords || [], fileUrl: fileUrl || null
+    };
   };
 
   var RESOURCES = [

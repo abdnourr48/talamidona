@@ -26,7 +26,9 @@
     file:     '<path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/>',
     flag:     '<path d="M4 22V4M4 4h13l-2 4 2 4H4"/>',
     check:    '<path d="M20 6 9 17l-5-5"/>',
-    north:    '<path d="M12 2 4 22l8-6 8 6z"/>'
+    north:    '<path d="M12 2 4 22l8-6 8 6z"/>',
+    download: '<path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M5 21h14"/>',
+    eye:      '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>'
   };
 
   function icon(name, cls) {
@@ -34,11 +36,16 @@
     return '<svg class="icon ' + (cls || '') + '" viewBox="0 0 24 24" aria-hidden="true">' + body + '</svg>';
   }
 
+  /* Unique IDs per logo so navbar + footer don't collide */
+  var logoUid = 0;
   function logoMark(size) {
     var s = size || 32;
+    var uid = 'mdg' + (++logoUid);
     return '<svg width="' + s + '" height="' + s + '" viewBox="0 0 40 40" aria-hidden="true">'
-      + '<defs><linearGradient id="mdg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--brand)"/><stop offset="1" stop-color="var(--accent)"/></linearGradient></defs>'
-      + '<rect x="2" y="2" width="36" height="36" rx="10" fill="url(#mdg)"/>'
+      + '<defs><linearGradient id="' + uid + '" x1="0" y1="0" x2="1" y2="1">'
+      + '<stop offset="0" stop-color="var(--brand)"/><stop offset="1" stop-color="var(--accent)"/>'
+      + '</linearGradient></defs>'
+      + '<rect x="2" y="2" width="36" height="36" rx="10" fill="url(#' + uid + ')"/>'
       + '<path d="M12 26 L20 14 L28 26 Z" fill="white" opacity=".95"/>'
       + '<circle cx="20" cy="26" r="3" fill="var(--accent)"/>'
       + '<path d="M14 30 h12" stroke="white" stroke-width="2" stroke-linecap="round"/>'
@@ -88,7 +95,7 @@
       +             '<button class="lang__item' + (lang === 'en' ? ' is-active' : '') + '" data-action="set-lang" data-lang="en" role="menuitem">English</button>'
       +           '</div>'
       +         '</div>'
-      +         '<button class="btn btn--ghost btn--icon btn--sm" data-action="toggle-theme" aria-label="' + t('theme.toggle') + '" title="' + t('theme.toggle') + '">'
+      +         '<button class="btn btn--ghost btn--icon btn--sm" data-action="toggle-theme" aria-label="' + t('theme.toggle') + '" title="' + t('theme.toggle') + '" aria-pressed="' + isDark + '">'
       +           (isDark ? icon('sun', 'icon--sm') : icon('moon', 'icon--sm'))
       +         '</button>'
       +         '<button class="btn btn--ghost btn--icon btn--sm navbar__burger" data-action="toggle-menu" aria-label="' + t('nav.openMenu') + '" aria-expanded="false">'
@@ -150,9 +157,9 @@
       +     '<div class="footer__col">'
       +       '<h3 class="footer__title">' + t('footer.languages') + '</h3>'
       +       '<div class="footer__langs">'
-      +         '<button class="chip' + (lang === 'ar' ? ' chip--on' : '') + '" data-action="set-lang" data-lang="ar">العربية</button>'
-      +         '<button class="chip' + (lang === 'fr' ? ' chip--on' : '') + '" data-action="set-lang" data-lang="fr">Français</button>'
-      +         '<button class="chip' + (lang === 'en' ? ' chip--on' : '') + '" data-action="set-lang" data-lang="en">English</button>'
+      +         '<button class="chip' + (lang === 'ar' ? ' chip--on' : '') + '" data-action="set-lang" data-lang="ar" aria-pressed="' + (lang === 'ar') + '">العربية</button>'
+      +         '<button class="chip' + (lang === 'fr' ? ' chip--on' : '') + '" data-action="set-lang" data-lang="fr" aria-pressed="' + (lang === 'fr') + '">Français</button>'
+      +         '<button class="chip' + (lang === 'en' ? ' chip--on' : '') + '" data-action="set-lang" data-lang="en" aria-pressed="' + (lang === 'en') + '">English</button>'
       +       '</div>'
       +     '</div>'
       +   '</div>'
@@ -183,11 +190,24 @@
     return '<span class="badge ' + cls + '">' + t('type.' + type) + '</span>';
   }
 
+  /* ── resourceRow — becomes a link when fileUrl exists ── */
   function resourceRow(r) {
     var lang = window.MD.state.getLang();
-    var meta = [data.subjectName(r.subject, lang), r.stream ? data.streamName(r.stream, lang) : null, r.year ? r.year : null].filter(Boolean).join(' · ');
+    var meta = [
+      data.subjectName(r.subject, lang),
+      r.stream ? data.streamName(r.stream, lang) : null,
+      r.year ? r.year : null
+    ].filter(Boolean).join(' · ');
+
+    var hasPdf = !!r.fileUrl;
+    var tag = hasPdf ? 'a' : 'article';
+    var attrs = hasPdf
+      ? ' href="' + r.fileUrl + '" target="_blank" rel="noopener"'
+      : '';
+    var cls = 'resource' + (hasPdf ? ' resource--link' : '');
+
     return ''
-      + '<article class="resource" tabindex="0">'
+      + '<' + tag + ' class="' + cls + '"' + attrs + ' tabindex="0">'
       +   '<div class="resource__icon">' + subjectIcon(r.subject) + '</div>'
       +   '<div class="resource__body">'
       +     '<h3 class="resource__title">' + r.title + '</h3>'
@@ -196,12 +216,14 @@
       +   '<div class="resource__right">'
       +     typeBadge(r.type)
       +     (r.examType ? '<span class="badge badge--outline">' + t('examType.' + r.examType) + '</span>' : '')
+      +     (hasPdf ? '<span class="badge badge--brand resource__pdf">' + icon('file', 'icon--sm') + ' PDF</span>' : '')
       +   '</div>'
-      + '</article>';
+      + '</' + tag + '>';
   }
 
   window.MD.components = {
     icon: icon,
+    iconBody: function (name) { return ICONS[name] || ''; },
     logoMark: logoMark,
     navbar: navbar,
     footer: footer,

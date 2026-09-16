@@ -27,6 +27,7 @@
       // is an empty object — the real query string is the *second* arg.
       router.on('/exams', function (p, q) { return pages.exams(q); });
       router.on('/search', function (p, q) { return pages.search(q); });
+      router.on('/dev', function () { return pages.dev ? pages.dev() : pages.notFound(); });
       router.notFound(pages.notFound);
       router._routesConfigured = true;
     }
@@ -93,11 +94,23 @@
       case 'toggle-theme':
         window.MD.state.toggleTheme();
         break;
-      case 'toggle-menu':
-        setMobileMenuOpen(document.querySelector('[data-role="mobile-menu"]').hidden);
-        break;
+      case 'toggle-menu': {
+  var mm = document.querySelector('[data-role="mobile-menu"]');
+  if (mm) setMobileMenuOpen(mm.hidden);
+  break;
+}
     }
   });
+
+function refreshThemeIcons() {
+  var isDark = window.MD.state.getTheme() === 'dark';
+  var name = isDark ? 'sun' : 'moon';
+  document.querySelectorAll('[data-action="toggle-theme"]').forEach(function (btn) {
+    var svg = btn.querySelector('.icon');
+    if (svg) svg.innerHTML = window.MD.components.iconBody(name);
+  });
+}
+window.MD.state.on('theme', refreshThemeIcons);
 
   document.addEventListener('submit', function (e) {
     var form = e.target.closest && e.target.closest('[data-role="navbar-search"]');
@@ -108,10 +121,11 @@
     if (q) goToSearch(q);
   });
 
-  document.addEventListener('route:mounted', function () {
-    setMobileMenuOpen(false);
-    closeLangMenus();
-  });
+document.addEventListener('keydown', function (e) {
+  if (e.key !== 'Escape') return;
+  setMobileMenuOpen(false);
+  closeLangMenus();
+});
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', boot);
