@@ -101,6 +101,6 @@
 "saved.empty": "No saved items",
 "saved.emptyHint": "Click the star ⭐ next to any resource to save it here.",
 "saved.count": "{n} saved item(s)",
-"saved.print": "Print / Save as PDF"
+"saved.print": "Print / Save as PDF",
   "notFound.cta": "Back to home"
 }

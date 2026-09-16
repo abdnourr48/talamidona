@@ -101,7 +101,7 @@
 "saved.empty": "Aucun favori",
 "saved.emptyHint": "Cliquez sur l'étoile ⭐ à côté d'une ressource pour l'ajouter ici.",
 "saved.count": "{n} élément(s) sauvegardé(s)",
-"saved.print": "Imprimer / PDF"
+"saved.print": "Imprimer / PDF",
 
   "notFound.cta": "Retour à l'accueil"
 }
